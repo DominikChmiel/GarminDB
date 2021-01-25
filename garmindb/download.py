@@ -189,7 +189,7 @@ class Download():
             delta = datetime.datetime.now().date() - download_date
             stat_function(directory, download_date, overwite or delta.days <= self.download_days_overlap)
             # pause for a second between every page access
-            time.sleep(1)
+            #time.sleep(0.2)
 
     def __get_summary_day(self, directory_func, date, overwite=False):
         root_logger.info("get_summary_day: %s", date)
@@ -228,7 +228,7 @@ class Download():
             self.__get_monitoring_day(day_date)
             self.__unzip_files(directory_func(day_date.year))
             # pause for a second between every page access
-            time.sleep(1)
+            time.sleep(0.2)
 
     def __get_weight_day(self, directory, day, overwite=False):
         root_logger.info("Checking weight: %s overwite %r", day, overwite)
@@ -295,7 +295,7 @@ class Download():
                 if not os.path.isfile(f'{directory}/{activity_id_str}.fit') or overwite:
                     self.__save_activity_file(activity_id_str)
                 # pause for a second between every page access
-                time.sleep(1)
+                time.sleep(0.2)
         self.__unzip_files(directory)
 
     def get_activity_types(self, directory, overwite):
