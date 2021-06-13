@@ -6,6 +6,7 @@ from import_garmin import SleepActivityLevels, RemSleepActivityLevels
 from datetime import datetime, timedelta, time
 
 import pytz
+from typing import *
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ date_range = [sleep_events[0].timestamp + timedelta(days=-1), sleep_events[-1].t
 
 days = (date_range[1] - date_range[0]).days
 
-YSTEP = timedelta(minutes=6)
+YSTEP = timedelta(minutes=1)
 DAILY_Y = int(timedelta(days=1).total_seconds() / YSTEP.total_seconds())
 
 sleep_data = np.array([[0] * days] * DAILY_Y)
@@ -60,13 +61,31 @@ for ev in sleep_events:
 	val = slevel.value + 1
 	#if localized.weekday() < 5:
 	#	val += 5
-	if val > 0 and localized.weekday() < 5:
-		add_sleep_state(sleep_data_detail, localized, localized + timedelta(hours=ev.duration.hour, minutes=ev.duration.minute), val)
+	#if val > 0 and localized.weekday() < 5:
+	add_sleep_state(sleep_data_detail, localized, localized + timedelta(hours=ev.duration.hour, minutes=ev.duration.minute), val)
 
 
-cmap = ListedColormap(["black", (0 / 256, 75 / 256, 160 / 256), (25 / 256, 118 / 256, 210 / 256), (172 / 256, 6 / 256, 188 / 256), (237 / 256, 121 / 256, 213 / 256)])
+def rgb_to_set(col: str) -> List[float]:
+	if col[0] == '#':
+		return (int(col[1:3], 16) / 256, int(col[3:5], 16) / 256, int(col[5:7], 16) / 256)
+	assert col[0:4] == 'rgb(' and col[-1] == ')'
+	sub_col = col[4:-1:]
+	splits = sub_col.split(',')
+	assert len(splits) == 3
+	return (int(splits[0]) / 256, int(splits[1]) / 256, int(splits[2]) / 256)
+
+
+# cmap = ListedColormap(["black", rgb_to_set('rgb(0, 75, 160)'), rgb_to_set('rgb(25, 118, 210)'), rgb_to_set('rgb(172, 6, 188)'), rgb_to_set('rgb(237, 121, 213)')])
+cmap = ListedColormap([
+	"black",
+	rgb_to_set('rgb(0, 75, 160)'),
+	rgb_to_set('rgb(25, 118, 210)'),
+	rgb_to_set('#079AA6'), # rgb_to_set('rgb(172, 6, 188)'),
+	rgb_to_set('rgb(237, 121, 213)')
+])
 
 fig, ax = plt.subplots(2, gridspec_kw={'height_ratios': [1, 3]})
+
 
 for ax, dt in zip(ax, [sleep_data, sleep_data_detail]):
 	psm = ax.imshow(dt,
@@ -85,5 +104,9 @@ for ax, dt in zip(ax, [sleep_data, sleep_data_detail]):
 	date_format = mdates.DateFormatter('%H:%M:%S')
 	ax.yaxis.set_major_formatter(date_format)
 fig.autofmt_xdate()
-fig.tight_layout()
+#fig.tight_layout()
+plt.subplots_adjust(left=0.03, bottom=0.04, right=1, top=0.96, wspace=0, hspace=0.1)
+
+#mng = plt.get_current_fig_manager()
+#mng.frame.Maximize(True)
 plt.show()
