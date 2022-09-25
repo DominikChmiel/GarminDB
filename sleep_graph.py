@@ -1,7 +1,7 @@
-import GarminDB
-from garmin_db_config_manager import GarminDBConfigManager
+from garmindb import ConfigManager
 
-from import_garmin import SleepActivityLevels, RemSleepActivityLevels
+from garmindb.import_monitoring import SleepActivityLevels, RemSleepActivityLevels
+from garmindb.garmindb import GarminDb, Attributes, Device, DeviceInfo, DailySummary, ActivitiesDb, Activities, SleepEvents, Sleep
 
 from datetime import datetime, timedelta, time
 
@@ -17,9 +17,9 @@ import math
 
 tz = pytz.timezone('Europe/Berlin')
 
-gDB = GarminDB.GarminDB(GarminDBConfigManager.get_db_params(), 0)
+gDB = GarminDb(ConfigManager.get_db_params(), 0)
 
-sleep_events = GarminDB.SleepEvents.get_all(gDB)
+sleep_events = SleepEvents.get_all(gDB)
 
 date_range = [sleep_events[0].timestamp + timedelta(days=-1), sleep_events[-1].timestamp + timedelta(days=2)]
 
@@ -44,7 +44,7 @@ def add_sleep_state(data, start, end, state):
 
 
 # Query total sleep info
-sleep = GarminDB.Sleep.get_all(gDB)
+sleep = Sleep.get_all(gDB)
 sleep = [x for x in sleep if x.start is not None]
 print(sleep[0])
 for sev in sleep:
